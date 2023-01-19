@@ -1,0 +1,15 @@
+Fs40_0.01_4_Wp_1_10
+
+![image-20230118143202861](lowpass.assets/image-20230118143202861.png)
+
+Fs20_1_3_Wp_1_10
+
+![image-20230118142051159](lowpass.assets/image-20230118142051159.png)
+
+Fs40_2_4_Wp_1_10
+
+![image-20230118142642798](lowpass.assets/image-20230118142642798.png)
+
+
+
+![image-20230118145646992](lowpass.assets/image-20230118145646992.png)
