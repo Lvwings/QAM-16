@@ -1,0 +1,4 @@
+%% 读取仿真中的数据
+din = readfis("D:/Algorithm/QAM/Git_QAM/MATLAB/data/din.txt");
+idata = readfis("D:/Algorithm/QAM/Git_QAM/MATLAB/data/idata.txt");
+qdata = readfis("D:/Algorithm/QAM/Git_QAM/MATLAB/data/qdata.txt");

@@ -29,7 +29,7 @@ module tb_qam_top (); /* this is automatically generated */
     // (*NOTE*) replace reset, clock, others
 
     logic               din_valid;
-    logic  signed [3:0] din;
+    logic         [3:0] din;
     logic               din_ready;
     logic               demult_valid;
     logic signed [17:0] demult_q;
@@ -53,25 +53,53 @@ module tb_qam_top (); /* this is automatically generated */
     endtask
 
 
-    logic [7:0] cnt = '0;
+    logic [9:0] cnt = '0;
+
     initial begin
         // do something
         init();
-
-
         repeat(128) @(posedge axi_clk);
         wait(din_ready);
         din_valid   <=  1;
         do begin                      
             cnt <= cnt + 1;
             if (&cnt)
-                din <= 4'b01zx;
+                din_valid   <=  0;
             else
                 din <= $random()%16;
             @(posedge din_ready);
-            @(posedge din_ready);
-        end while (1);
+        end while (din_valid);
 
     end
+    integer fd;
+    initial begin
+        fd = $fopen("D:/Algorithm/QAM/Git_QAM/MATLAB/data/din.txt", "w");
+        wait(din_valid);
+        $display("demult_valid assert");
 
+        while (din_valid) begin
+            @(posedge din_ready);
+                $fwrite(fd,"%d\t", din);            
+        end
+
+        $fclose(fd);
+    end    
+
+    integer fi,fq;
+
+    initial begin
+        fi = $fopen("D:/Algorithm/QAM/Git_QAM/MATLAB/data/idata.txt", "w");
+        fq = $fopen("D:/Algorithm/QAM/Git_QAM/MATLAB/data/qdata.txt", "w");
+        wait(demult_valid);
+        $display("demult_valid assert");
+
+        while (demult_valid) begin
+            @(posedge axi_clk);
+                $fwrite(fi,"%d\t", demult_i);
+                $fwrite(fq,"%d\t", demult_q);            
+        end
+
+        $fclose(fi);
+        $fclose(fq); 
+    end
 endmodule

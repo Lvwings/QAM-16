@@ -4,7 +4,7 @@ module qam_mod_top (
     input   logic                   axi_clk,    // Clock
     input   logic                   axi_rstn,   // reset
     input   logic                   din_valid,
-    input   logic   signed [3:0]    din,        // data in : 16-QAM carry 4-bit
+    input   logic           [3:0]   din,        // data in : 16-QAM carry 4-bit
     output  logic                   din_ready,
     output  logic                   qam_valid,
     output  logic   signed  [9:0]   qam_out     // data format : 3Q6

@@ -7,7 +7,7 @@ module qam_mod (
     input   logic                   cor_zero,
     input   logic                   din_valid,
     output  logic                   din_ready,
-    input   logic   signed  [3:0]   din,        // data in : 16-QAM carry 4-bit
+    input   logic           [3:0]   din,        // data in : 16-QAM carry 4-bit
     output  logic                   mod_valid,
     output  logic   signed  [2:0]   mod_q,      // Q channel
     output  logic   signed  [2:0]   mod_i       // I channel
