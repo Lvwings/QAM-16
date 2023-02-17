@@ -32,8 +32,8 @@ module tb_qam_top (); /* this is automatically generated */
     logic         [3:0] din;
     logic               din_ready;
     logic               demult_valid;
-    logic signed [17:0] demult_q;
-    logic signed [17:0] demult_i;
+    logic signed [19:0] demult_q;
+    logic signed [19:0] demult_i;
 
     qam_top inst_qam_top
         (
@@ -53,7 +53,7 @@ module tb_qam_top (); /* this is automatically generated */
     endtask
 
 
-    logic [9:0] cnt = '0;
+    logic [6:0] cnt = '0;
 
     initial begin
         // do something
@@ -67,7 +67,7 @@ module tb_qam_top (); /* this is automatically generated */
                 din_valid   <=  0;
             else
                 din <= $random()%16;
-            @(posedge din_ready);
+            repeat(8) @(posedge din_ready);
         end while (din_valid);
 
     end
@@ -95,8 +95,8 @@ module tb_qam_top (); /* this is automatically generated */
 
         while (demult_valid) begin
             @(posedge axi_clk);
-                $fwrite(fi,"%d\t", demult_i);
-                $fwrite(fq,"%d\t", demult_q);            
+                $fwrite(fi,"%d\t", $signed(demult_i));
+                $fwrite(fq,"%d\t", $signed(demult_q));            
         end
 
         $fclose(fi);

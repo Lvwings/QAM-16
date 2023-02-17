@@ -68,7 +68,7 @@ rxSignalG   = awgn(dataModG,snr,'measured');    % Gray-encoded
 %}
 sPlotFig = scatterplot(rxSignal,1,0,'g.');
 hold on
-scatterplot(dataMod,1,0,'k*',sPlotFig)
+scatterplot(dataMod,1,0,'k*',sPlotFig);
 %%
 %{
     解调 16-QAM
@@ -107,16 +107,17 @@ symbin  = qammod(x,M,'bin');    % 16-QAM output (binary-coded)
 symgray = qammod(x,M,'gray');   % 16-QAM output (Gray-coded)
 
 scatterplot(symgray,1,0,'b*');
+grid on;
 for i = 1:M
     text(real(symgray(i)) - 0.0,imag(symgray(i)) + 0.3, ...
         dec2base(x(i),2,4));
      text(real(symgray(i)) - 0.5,imag(symgray(i)) + 0.3, ...
          num2str(x(i)));
     
-    text(real(symbin(i)) - 0.0,imag(symbin(i)) - 0.3, ...
-        dec2base(x(i),2,4),'Color',[1 0 0]);
-    text(real(symbin(i)) - 0.5,imag(symbin(i)) - 0.3, ...
-        num2str(x(i)),'Color',[1 0 0]);
+%     text(real(symbin(i)) - 0.0,imag(symbin(i)) - 0.3, ...
+%         dec2base(x(i),2,4),'Color',[1 0 0]);
+%     text(real(symbin(i)) - 0.5,imag(symbin(i)) - 0.3, ...
+%         num2str(x(i)),'Color',[1 0 0]);
 end
 title('16-QAM Symbol Mapping');
 axis([-4 4 -4 4]);

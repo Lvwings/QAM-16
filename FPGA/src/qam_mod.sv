@@ -8,35 +8,33 @@ module qam_mod (
     input   logic                   din_valid,
     output  logic                   din_ready,
     input   logic           [3:0]   din,        // data in : 16-QAM carry 4-bit
-    output  logic                   mod_valid,
-    output  logic   signed  [2:0]   mod_q,      // Q channel
-    output  logic   signed  [2:0]   mod_i       // I channel
+    qam_internal_port.pout          mod
 );
     assign  din_ready   =   cor_zero;
 
     always_ff @(posedge axi_clk) begin
         if(!axi_rstn || !din_valid) begin
-            mod_q       <= '0;
-            mod_i       <= '0;
-            mod_valid   <= '0;
+            mod.q       <= '0;
+            mod.i       <= '0;
+            mod.valid   <= '0;
         end else begin
-            mod_valid   <= '1;
+            mod.valid   <= '1;
             // I-out 
-            unique0 case (din[1:0]) 
-                2'b00   : mod_i <=  -3;
-                2'b01   : mod_i <=   3;
-                2'b11   : mod_i <=   1;
-                2'b10   : mod_i <=  -1;                
-                default : $display("TIME %d ns, Error : wrong input data type in I channel din[1:0] : %b",$time, din[1:0]);
+            unique0 case (din[3:2]) 
+                2'b00   : mod.i <=  -3;
+                2'b01   : mod.i <=  -1;
+                2'b11   : mod.i <=   1;
+                2'b10   : mod.i <=   3;                
+                default : $display("TIME %d ns, Error : wrong input data type in I channel din[3:2]: %b",$time, din[3:2]);
             endcase
 
             // Q-out 
-            unique0 case (din[3:2]) 
-                2'b00   : mod_q <=  -3;
-                2'b01   : mod_q <=   3;
-                2'b11   : mod_q <=   1;
-                2'b10   : mod_q <=  -1;                
-                default : $display("TIME %d ns, Error : wrong input data type in Q channel din[3:2] : %b",$time, din[3:2]);
+            unique0 case (din[1:0]) 
+                2'b00   : mod.q <=   3;
+                2'b01   : mod.q <=   1;
+                2'b11   : mod.q <=  -1;
+                2'b10   : mod.q <=  -3;                
+                default : $display("TIME %d ns, Error : wrong input data type in Q channel din[1:0] : %b",$time, din[1:0]);
             endcase            
         end
     end

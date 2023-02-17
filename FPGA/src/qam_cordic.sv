@@ -5,10 +5,7 @@ module qam_cordic (
     input   logic                   axi_clk,      // Clock
     input   logic                   axi_rstn,      // synchronous reset active low
     input   logic                   cor_en,
-    output  logic                   cor_valid,
-    output  logic                   cor_zero,
-    output  logic   signed  [7:0]   sin,
-    output  logic   signed  [7:0]   cos    
+    qam_carrier.pout                cor
 );
 
 /*------------------------------------------------------------------------------
@@ -30,16 +27,16 @@ module qam_cordic (
     end
 
 /*------------------------------------------------------------------------------
---  cor_zero
+--  cor.zero
 ------------------------------------------------------------------------------*/
-    localparam  COR_ODELAY  =   12;
+    localparam  COR_ODELAY  =   11;
 
     always_ff @(posedge axi_clk) begin 
         if(~axi_rstn) begin
-            cor_zero   <= '0;
+            cor.zero   <= '0;
 
         end else begin
-            cor_zero   <= (tdata == COR_ODELAY-1);
+            cor.zero   <= (tdata == COR_ODELAY-1);
         end
     end    
 
@@ -48,8 +45,8 @@ cordic_0 cordic (
   .aresetn              (axi_rstn),     // input wire aresetn
   .s_axis_phase_tvalid  (tvalid),       // input wire s_axis_phase_tvalid
   .s_axis_phase_tdata   (8'(tdata)),        // input wire [7 : 0] s_axis_phase_tdata
-  .m_axis_dout_tvalid   (cor_valid),    // output wire m_axis_dout_tvalid
-  .m_axis_dout_tdata    ({sin,cos})     // output wire [15 : 0] m_axis_dout_tdata
+  .m_axis_dout_tvalid   (cor.valid),    // output wire m_axis_dout_tvalid
+  .m_axis_dout_tdata    ({cor.sin,cor.cos})     // output wire [15 : 0] m_axis_dout_tdata
 );
 
 endmodule : qam_cordic
