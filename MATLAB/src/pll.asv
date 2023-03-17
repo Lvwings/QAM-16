@@ -1,0 +1,105 @@
+
+    clear all;
+    close all;
+%%
+%{
+    PLL : phase-locked loop
+
+    Z域：
+
+    vi(n) -> |E| -> err(n) -> |k0| -> vc(n) -> |Fs| -> vo(n)
+              |                                     |
+              --------- <- sb(n) <- |VCO| <----------
+
+    vi(n)   : 输入信号      input data
+    vo(n)   : 输出信号      ouput data
+    sb(n)   : VCO的反馈信号 feedback data through VCO  
+    err(n)  : 相位差        phase error (fb - f)
+    k0      : 增益          gain
+    Fs      : 环路滤波器    loop filter
+    ts      : 采样率
+ 
+%}
+    k0  = 2;
+    fs  = 8e3;
+    ts  = 1/fs;
+    len = 1e6;
+
+    % 输入信号
+    wi   = 1e3;
+    t   = 0:ts:(len-1)*ts;
+    vi  = sin(2*pi*wi.*t);
+%%
+%{
+    VCO : voltage-controlled ovcillator
+    
+    w0      : VCO固有振荡角频率 the natural ovcillation angular frequency (no input voltage)
+    k1      : VCO增益系数
+%}
+    w0 = 400;
+    k1 = 10;
+
+%%
+%{
+    loop filter
+
+    S域          ： 环路滤波器采用理想二阶2型环 : Fs = (1+s*T2)/(s*T1)
+    双极性变换法  ： s = (2/ts)*((1-z^(-1))/(1+z^(-1)))
+    Z域          ： Fz = C1 + C2/((1-z^(-1));
+%}
+
+    fc      = 10;
+    damp    = 0.707;
+    k       = k0*k1;
+
+    syms T1 T2;
+    eqn_damp= ((T2/2)*sqrt(k/T1) == damp);
+    eqn_fc  = (sqrt(2/(T1^2-2*T2^2)) == fc);
+    [T1,T2] = solve(eqn_damp, eqn_fc, [T1,T2]);
+    t1      = double(T1(2));
+    t2      = double(T2(2));
+    wn      = sqrt(k/t1);
+
+    %c1      = (8*damp*wn*ts) / (k * (4 + 4*damp*wn*ts + (wn*ts)^2));
+    %c2      = (4*(wn*ts)^2)  / (k * (4 + 4*damp*wn*ts + (wn*ts)^2));
+    c1 = 0.4073;
+    c2 = 0.0023;
+    
+    cc1     = (2*t2+ts)/2/t1;
+    cc2     = ts/t1;
+
+    vo(len)  = 0;
+    vb(len)  = 0;
+    sb(len)  = 0;
+    vc(len)  = 0;
+    a(len)   = 0;
+    b(len)   = 0;
+
+    % 环路迭代计算
+    for n = 1:len-1
+        vb(n)   = sin(2*pi*(w0+k1*vo(n))*n*ts);
+        vc(n)   = k0*(vi(n) * vb(n));
+        b(n)    = c1*vc(n);
+        a(n+1)  = c2*vc(n) + a(n);
+        vo(n+1) = a(n) + b(n);                
+    end
+    figure
+    plot(vi); hold on;
+    plot(vo); legend('vi','vo'); 
+
+    figure   
+    plot(vc); hold on; 
+    plot(vb); legend('vc','vb');
+    
+    %figure
+    %plot(sb);
+%%
+%{
+    锁相环传输函数 H
+
+    H = dvco/din = (k0*k1*Fs)/(s+k0*k1*Fs)
+%}
+
+syms b wn e;
+c1      = (8*damp*wn*ts) / (k * (4 + 4*damp*wn*ts + (wn*ts)^2));
+c2      = (4*(wn*ts)^2)  / (k * (4 + 4*damp*wn*ts + (wn*ts)^2));

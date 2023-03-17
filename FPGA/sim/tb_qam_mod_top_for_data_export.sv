@@ -70,7 +70,7 @@ module tb_qam_mod_top_for_data_export (); /* this is automatically generated */
     endtask
 
 
-    logic [6:0] cnt = '0;
+    logic [6:0] cnt = 0;
 
     initial begin
         // do something
@@ -78,13 +78,13 @@ module tb_qam_mod_top_for_data_export (); /* this is automatically generated */
         repeat(128) @(posedge axi_clk);
         wait(din_ready);
         din_valid   <=  1;
-        do begin                      
-            cnt <= cnt + 1;
-            if (&cnt)
+        do begin                                  
+            if (cnt == 64)
                 din_valid   <=  0;
             else
                 din <= $random()%16;
-            repeat(8) @(posedge din_ready);
+            repeat(16) @(posedge din_ready);
+            cnt <= cnt + 1;
         end while (din_valid);
 
     end

@@ -17,14 +17,14 @@ qam_data = textread("D:/Algorithm/QAM/Git_QAM/MATLAB/data/qam_data.txt");
 qam_data = qam_data/2^9;
 
 demult_i = textread("D:/Algorithm/QAM/Git_QAM/MATLAB/data/demult_i.txt");
-demult_i = demult_i/2^11;
+demult_i = demult_i/2^30;
 demult_q = textread("D:/Algorithm/QAM/Git_QAM/MATLAB/data/demult_q.txt");
-demult_q = demult_q/2^11;
+demult_q = demult_q/2^30;
 
 defilter_i = textread("D:/Algorithm/QAM/Git_QAM/MATLAB/data/defilter_i.txt");
-defilter_i = defilter_i/2^11;
+defilter_i = defilter_i/2^30;
 defilter_q = textread("D:/Algorithm/QAM/Git_QAM/MATLAB/data/defilter_q.txt");
-defilter_q = defilter_q/2^11;
+defilter_q = defilter_q/2^30;
 
 demod_i    = textread("D:/Algorithm/QAM/Git_QAM/MATLAB/data/demod_i.txt");
 demod_q    = textread("D:/Algorithm/QAM/Git_QAM/MATLAB/data/demod_q.txt");
@@ -35,12 +35,12 @@ demod_q    = textread("D:/Algorithm/QAM/Git_QAM/MATLAB/data/demod_q.txt");
 	fs  : 系统频率 200e6     200MHz
 
 	fc  : 载波频率 3.125e6   3.125MHz
-	fm  : 信号频率 390.625e3 390.625KHz 
+	fm  : 信号频率 195.3125e3 195.3125KHz 
 	N   : 采样点数 (fs/fc)*(fc/fm)*n      
 %}
 fs = 200e6;
 fc = 3.125e6;
-fm = 390.625e3;
+fm = 195.3125e3;
 
 M  = 16;                        % QAM Modulation order : 16-QAM (alphabet size or number of points in signal constellation)
 k  = log2(M);                   % Number of bits per symbol : 16-QAM carry 4 bits
@@ -69,21 +69,20 @@ Q = reshape(Q,1,numel(Q));
 I = repmat(iModG,N/(n*(fc/fm)),1);
 I = reshape(I,1,numel(I));
 
-len = 2e3;
+len = 1e4;
 
 subplot(2,1,1); plot(Q(1:len)); hold on; plot(mod_q(1:len),'r'); title("Q通道QAM映射"); legend('matlab中QAM映射','fpga中QAM映射');
 subplot(2,1,2); plot(I(1:len)); hold on; plot(mod_i(1:len),'r'); title("I通道QAM映射"); legend('matlab中QAM映射','fpga中QAM映射');
 %% 使用升余弦 （RC） 滤波器执行脉冲整形和升余弦滤波
 %{
-	% All frequency values are in MHz.
-	Fs = 31.25;  % Sampling Frequency
-	
-	N    = 32;         % Order
-	Fc   = 0.15625;    % Cutoff Frequency
-	TM   = 'Rolloff';  % Transition Mode
-	R    = 0.25;       % Rolloff
-	DT   = 'sqrt';     % Design Type
-	Beta = 0.33;       % Window Parameter 
+    % Fs = 100;  % Sampling Frequency
+    %
+    % N    = 16;         % Order
+    % Fc   = 0.1;        % Cutoff Frequency
+    % TM   = 'Rolloff';  % Transition Mode
+    % R    = 0.25;       % Rolloff
+    % DT   = 'Normal';   % Design Type
+    % Beta = 0.33;       % Window Parameter
 %}
 q_rc = filter_design(Q');
 i_rc = filter_design(I');
@@ -106,7 +105,7 @@ t = [0:N-1]*ts;         % sample time
 fcos = cos(2*pi*fc*t);  % I Chanel carrier
 fsin = sin(2*pi*fc*t);  % Q Chanel carrier
 
-tq = q_rc.*(-fsin');
+tq = q_rc.*(-fsin'); % 2?
 ti = i_rc.*fcos';
 tout = ti + tq;
 
@@ -119,12 +118,12 @@ subplot(2,3,5); plot(i_rc(1:len));   hold on;  title("I通道数据");
 subplot(2,3,6); plot(ti(1:len));     hold on;  title("I通道调制");
 
 figure
-plot(tout(1:2*len));   hold on;  plot(qam_data(1:2*len),'r'); title("QAM输出"); legend('matlab中QAM输出','fpga中QAM输出');
+plot(tout(1:len));   hold on;  plot(qam_data(1:len),'r'); title("QAM输出"); legend('matlab中QAM输出','fpga中QAM输出');
 %%%
 %{
     存储QAM输出到本地
 %}
-tout_int = round(single(tout*2^11));
+tout_int = round(single(tout*2^10));
 fid      = fopen("D:/Algorithm/QAM/Git_QAM/MATLAB/data/tx_qam.txt",'w');
 fprintf(fid,"%d\n",tout_int);
 fclose(fid);
@@ -140,8 +139,8 @@ subplot(2,1,2); plot(ri(1:len));   hold on; plot(demult_i(1:len),'r'); title("I�
 %{
     SR 滤波
 %}
-rq_rc = filter_design(double(rq));
-ri_rc = filter_design(double(ri));
+rq_rc = filter_design(double(2^8*rq));
+ri_rc = filter_design(double(2^8*ri));
 figure
 subplot(2,1,1); plot(rq_rc(1:len));   hold on; plot(defilter_q(1:len),'r'); title("Q通道滤波"); legend('Matlab接收滤波Q','Fpga接收滤波Q');
 subplot(2,1,2); plot(ri_rc(1:len));   hold on; plot(defilter_i(1:len),'r'); title("I通道滤波"); legend('Matlab接收滤波I','Fpga接收滤波I');
@@ -157,9 +156,13 @@ subplot(2,1,2); plot(ri_rc(1:len));   hold on; plot(defilter_i(1:len),'r'); titl
     plotstring : 设置散点图的绘制符号、线类型和颜色
     scatfig : 在现有对象中生成散点图
 %}
-zout = ri + 1i*rq; 
-%scatterplot(zout',1,0,'k*');
 
+zout = (double(ri_rc) + 1i*double(rq_rc))*2^9; 
+scatterplot(zout',1,0,'g*');
+legend('Matlab星座图');
+dout = (defilter_i + 1i*defilter_q)*2^12;
+scatterplot(dout',1,0,'k*');
+legend('Fpga星座图');
 %%
 %{
 	系统自带 lowpass 低通滤波器

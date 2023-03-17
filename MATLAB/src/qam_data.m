@@ -52,7 +52,7 @@ dataModG    = qammod(dataSymbolsIn,M);          % Gray-encoded
 
     awgn(x，snr，signalpower) - 将白高斯噪声添加到矢量信号 x 中，信噪比为 snr。'measured' 在添加噪声之前测量的功率
 %}
-EbNo        = 12;
+EbNo        = 18;
 snr         = EbNo+10*log10(k)-10*log10(sps);
 rxSignal    = awgn(dataMod,snr,'measured');     % Binary-encoded
 rxSignalG   = awgn(dataModG,snr,'measured');    % Gray-encoded

@@ -20,3 +20,6 @@ QAM-16
 ## order = 8, roll-off = 0.1
 
 ![image-20230217162100939](README.assets/image-20230217162100939.png)
+
+延时时间 = 采样周期*阶数
+

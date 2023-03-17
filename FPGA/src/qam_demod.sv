@@ -11,9 +11,9 @@ module qam_demod
 );
     import parameter_def ::*; 
 
-    localparam  signed [DEFILTER_WIDTH-1:0] LIMIT_P3    =   230;
-    localparam  signed [DEFILTER_WIDTH-1:0] LIMIT_P1    =   20;
-    localparam  signed [DEFILTER_WIDTH-1:0] LIMIT_N1    =   -180;
+    localparam  signed [DEFILTER_WIDTH-1:0] LIMIT_P3    =   70;
+    localparam  signed [DEFILTER_WIDTH-1:0] LIMIT_P1    =   30;
+    localparam  signed [DEFILTER_WIDTH-1:0] LIMIT_N1    =   -50;
     localparam  signed [DEFILTER_WIDTH-1:0] LIMIT_N3    =   -500;
 
 /*------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ module qam_demod
     end
     
 /*------------------------------------------------------------------------------
---  Q channel
+--  Q channel Hard solution
 ------------------------------------------------------------------------------*/
     always_ff @(posedge axi_clk) begin 
         if(!axi_rstn) begin
@@ -40,7 +40,7 @@ module qam_demod
         end
     end
 /*------------------------------------------------------------------------------
---  I channel
+--  I channel Hard solution
 ------------------------------------------------------------------------------*/
     always_ff @(posedge axi_clk) begin 
         if(!axi_rstn) begin
@@ -56,6 +56,47 @@ module qam_demod
         end
     end
 
+/*------------------------------------------------------------------------------
+--  Soft solution : {d3yi,d2yi,d1yq,d0yq}
+
+    d = 46 from QAM constellation map
+
+            
+    d0yq =  2d - |yq|
+             
+            -yq - d     yq <= -2d
+    d1yq =  -yq         yq = (-2d,2d)
+            -yq + d     yq >=  2d
+            
+    d2yi =  2d - |yi| 
+            
+            yi + d      yi <= -2d       0
+    d3yi =  yi          yi = (-2d,2d)
+            yi - d      yi >=  2d       1
+------------------------------------------------------------------------------*/
+    logic       signed  [DEFILTER_WIDTH+1 : 0]  dout_soft[3:0]  = '{default: '0};
+    localparam  signed  [DEFILTER_WIDTH-1 : 0]  D               = 30;
+
+    always_ff @(posedge axi_clk) begin 
+        if (defilter.valid) begin
+                priority if (signed'(defilter.i) <= -2*D)   dout_soft[3] <= (defilter.i + D);
+                    else if (signed'(defilter.i) <= 2*D)    dout_soft[3] <= defilter.i;
+                    else                                    dout_soft[3] <= (defilter.i - D);
+
+                priority if (signed'(defilter.i) <= 0)      dout_soft[2] <= 2*D + defilter.i;
+                    else                                    dout_soft[2] <= 2*D - defilter.i; 
+
+                priority if (signed'(defilter.q) <= -2*D)   dout_soft[1] <=  -(defilter.q + D);
+                    else if (signed'(defilter.q) <= 2*D)    dout_soft[1] <=  -defilter.q;
+                    else                                    dout_soft[1] <=  -(defilter.q - D);
+
+                priority if (signed'(defilter.q) <= 0)      dout_soft[0] <= 2*D + defilter.q;
+                    else                                    dout_soft[0] <= 2*D - defilter.q;                  
+        end
+    end
+    
+    logic   [3:0]   dout_s;
+    assign          dout_s  =   {dout_soft[3][DEFILTER_WIDTH+1],dout_soft[2][DEFILTER_WIDTH+1],dout_soft[1][DEFILTER_WIDTH+1],dout_soft[0][DEFILTER_WIDTH+1]};
 /*------------------------------------------------------------------------------
 --  dout
 ------------------------------------------------------------------------------*/

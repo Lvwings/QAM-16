@@ -38,7 +38,7 @@ package parameter_def;
 /*------------------------------------------------------------------------------
 --  RX SR FIR
     s_axis_data_tdata : 5Q8     REAL[13:0]
-    m_axis_data_tdata : Full precision -> 17Q8 REAL[25:0]
+    m_axis_data_tdata : Full precision -> 23Q8 REAL[31:0]
                         Take 8-bit fractional bits -> 4Q8 
 ------------------------------------------------------------------------------*/
     localparam      DEFILTER_WIDTH =   13; 

@@ -75,7 +75,8 @@ module tb_qam_demod_top_for_data_export (); /* this is automatically generated *
     integer fqam;
     initial begin
         init();
-        fqam = $fopen("D:/Algorithm/QAM/Git_QAM/MATLAB/data/tx_qam.txt", "r");
+        // fpga data : qam_data // matlab data : tx_qam
+        fqam = $fopen("D:/Algorithm/QAM/Git_QAM/MATLAB/data/qam_data.txt", "r");  // qam_data
 
         wait(axi_rstn);
         repeat(50) @(posedge axi_clk);

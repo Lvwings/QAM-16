@@ -1,0 +1,14 @@
+close all; clear all;
+x = -4:0.1:4;
+y1 = exp(-(x-1).^2);
+y2 = exp(-(x+1).^2);
+y3 = exp(-(x-3).^2);
+y4 = exp(-(x+3).^2);
+
+plot(x,y1); hold on;
+plot(x,y2); hold on;
+plot(x,y3); hold on;
+plot(x,y4); hold on;
+
+legend(' -(x-1)^2','-(x+1)^2','-(x-3)^2','-(x+3)^2');
+

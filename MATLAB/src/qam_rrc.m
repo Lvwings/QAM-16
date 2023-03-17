@@ -10,14 +10,15 @@ rolloff           = 0.4;    % Filter rolloff factor
 
     rcosdesign(beta,span,sps,'sqrt') - 
         -beta越大误码率越接近理想值，但是牺牲的带宽也多，
-        -sps是一个码元的采样点数，span是保留了多少个码元的长度，
+        -span用于对时域脉冲响应的截断，可以理解成几个第一零点时间长度
+        -sps是一个码元的采样点数，
         -sps*span+1就是这个滤波器的时域波形的长度，
         -'sqrt'就是根升余弦的意思，如果是normal那就是升余弦滤波器
     FVTool - 显示 RRC 滤波器脉冲响应 
 %}
 rrcFilter         = rcosdesign(rolloff,filtlen,sps);
 
-txFiltSignalF     = upfirdn(dataModG,rrcFilter,sps,1);     % 发送出的滤波 QAM 信
+txFiltSignalF     = upfirdn(dataModG,rrcFilter,sps,1);     % 发送出的滤波 QAM 信 升采样
 rxSignalF         = awgn(txFiltSignalF,snr,'measured');    % 通过 AWGN 通道接收到的 QAM 信号
 %{
     接收信号处理

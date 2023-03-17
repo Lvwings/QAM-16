@@ -12,7 +12,7 @@ module qam_mult_dsp
 /*------------------------------------------------------------------------------
 --  Time synchronization
 ------------------------------------------------------------------------------*/
-localparam FILTER_SHIFT_WIDTH = 6;  //  This parameter is associate with 【system frequency / filter sample frequency】
+localparam FILTER_SHIFT_WIDTH = 2;  //  This parameter is associate with 【system frequency / filter sample frequency】
 logic   [FILTER_SHIFT_WIDTH-1 : 0] filter_valid_shift = '0;
 
 always_ff @(posedge axi_clk) begin
